@@ -35,8 +35,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'monetize'
   spec.add_dependency 'mechanize'
-  spec.add_dependency 'capybara'
-  spec.add_dependency 'poltergeist'
   spec.add_dependency 'activesupport'
   spec.add_dependency 'reverse_markdown'
   spec.add_dependency 'sanitize'
