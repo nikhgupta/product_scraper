@@ -37,8 +37,9 @@ module ProductScraper
         pid: response[:uid],
         available: response[:available],
         original_name: response[:name],
-        priority_service: !!response[:priority_service],
-        provider: { name: self.class.name.demodulize.underscore },
+        prioritized: !!response[:priority_service],
+        merchant: { name: self.class.name.demodulize.underscore },
+        url: response[:canonical_url],
         images: response[:images].map do |image|
           { url: image.gsub(/.*\/I\/(.*?)\._.*_\..*/, '\1') }
         end
