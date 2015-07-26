@@ -41,14 +41,14 @@ module ProductScraper
         merchant: { name: self.class.name.demodulize.underscore },
         url: response[:canonical_url],
         images: response[:images].map do |image|
-          { url: image.gsub(/.*\/I\/(.*?)\._.*_\..*/, '\1') }
+          image.gsub(/.*\/I\/(.*?)\._.*_\..*/, '\1')
         end
       }
       data[:brand] = { name: response[:brand_name] } if response[:brand_name]
       data[:description] = response[:description][:markdown] if response[:description] && response[:description][:markdown]
       data[:price] = response[:price] if response[:price]
       data[:marked_price] = response[:marked_price] if response[:marked_price]
-      data.freeze
+      data #.freeze
     end
 
     def extract_primary_category

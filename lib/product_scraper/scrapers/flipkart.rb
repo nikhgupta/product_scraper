@@ -98,6 +98,7 @@ module ProductScraper
             header = row[0].to_s.parameterize('_')
             header = 'miscelleneous' if header.strip.empty?
           when row[0].strip.empty?
+            data[header] ||= {}
             data[header]['other_features'] ||= []
             data[header]['other_features'] << row[1]
           when row.count == 2
