@@ -38,11 +38,13 @@ module ProductScraper
     uri = URI.parse(url) rescue nil
     raise_error! "URL to scrape is invalid" unless uri
 
-    available_scrapers.map do |scraper|
+    scraper = available_scrapers.map do |scraper|
       class_for(scraper)
     end.detect do |scraper|
       scraper.can_parse?(uri)
-    end.new(url, options)
+    end
+    raise Error, "Merchant not implemented." if scraper.nil?
+    scraper.new(url, options)
   end
 
   def self.fetch_info(url, options = {})
