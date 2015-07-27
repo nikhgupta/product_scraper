@@ -16,6 +16,7 @@ module ProductScraper
       get url
       response = HashWithIndifferentAccess.new
       return response unless page && page.body
+      page.encoding = 'utf-8'
 
       %w[ uid name priority_service available brand_name price marked_price
        canonical_url primary_category categories ratings images features
