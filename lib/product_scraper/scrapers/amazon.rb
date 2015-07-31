@@ -66,6 +66,8 @@ module ProductScraper
           description = find('#productDescription .content')
         elsif has_css?('#productDescription')
           description = find('#productDescription')
+        elsif has_css?('.kmd-section-container')
+          description = find('.kmd-section-container', all: true)
         elsif iframe_html = page.body.match(/var iframeContent = "(.*?)";/)
           iframe_html = URI.decode(iframe_html[1]).strip
           iframe_html = Nokogiri::HTML(iframe_html)
