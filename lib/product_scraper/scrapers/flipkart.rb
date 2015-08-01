@@ -3,7 +3,7 @@ module ProductScraper
     class Flipkart < ProductScraper::BaseScraper
       def self.can_parse?(uri)
         return false unless uri.host =~ /\A(?:|www\.)flipkart\.com\z/
-        uri.path =~ %r{/p/.*}
+        uri.path =~ %r{/.*?/p/.*}
       end
 
       def extract_uid

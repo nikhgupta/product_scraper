@@ -1,9 +1,18 @@
+require 'digest/md5'
 module ProductScraper
   class BaseScraper
     include ProductScraper::Helpers
 
     # By default, reject all URLs for scraping purposes.
     def self.can_parse?(uri); false; end
+    # strip out scheme, and www prefix and generate a hash for this URL
+    def self.normalize(uri); uri.path; end
+    def self.url_hash_for(url)
+      uri = URI.parse(url)
+      uri = URI.parse("http://#{url}") if uri.scheme.nil?
+      dom = uri.host.gsub(/^www\./,'')
+      Digest::MD5.hexdigest(dom + [normalize(uri)].flatten.join)
+    end
 
     attr_accessor :url, :options
 
@@ -26,6 +35,7 @@ module ProductScraper
         value = HashWithIndifferentAccess.new(value) if value.is_a?(Hash)
         response[field] = value # unless value.nil?
       end
+      response[:hash] = self.class.url_hash_for(url)
       response.freeze
     end
     alias :all_info :run
@@ -49,6 +59,7 @@ module ProductScraper
       data[:description] = response[:description][:markdown] if response[:description] && response[:description][:markdown]
       data[:price] = response[:price] if response[:price]
       data[:marked_price] = response[:marked_price] if response[:marked_price]
+      data[:url_hash] = response[:hash]
       data #.freeze
     end
 

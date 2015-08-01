@@ -40,6 +40,11 @@ module ProductScraper
     scraper.new(url, options)
   end
 
+  def self.url_hash_for(url)
+    scraper = can_parse?(url)
+    scraper ? scraper.url_hash_for(url) : nil
+  end
+
   def self.can_parse?(url)
     uri = URI.parse(url) rescue nil
     raise_error! "URL to scrape is invalid" unless uri

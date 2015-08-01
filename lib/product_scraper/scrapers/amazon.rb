@@ -7,6 +7,11 @@ module ProductScraper
         uri.path =~ /\/(dp|gp\/product)\/[A-Z0-9]{10}/
       end
 
+      def self.normalize(uri)
+        match = uri.path.match(%r{(/(?:dp|gp/product)/.*?)(?:/|$)})
+        match ? match[1] : nil
+      end
+
       def extract_uid
         attribute_for '#addToCart #ASIN', 'value'
       end
