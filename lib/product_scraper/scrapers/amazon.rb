@@ -8,7 +8,7 @@ module ProductScraper
       end
 
       def self.normalize(uri)
-        match = uri.path.match(%r{(/(?:dp|gp/product)/.*?)(?:/|$)})
+        match = uri.path.match(%r{/(?:dp|gp/product)/(.*?)(?:/|$)})
         match ? match[1] : nil
       end
 
