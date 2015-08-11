@@ -7,7 +7,7 @@ module ProductScraper::Helpers::Selector
   #
   def find(selector, options = {})
     els = selector ? page.search(selector, options.except(:all)) : []
-    options.fetch(:all, false) ? els : els.first
+    options[:all] ? els : els.first
   end
 
   # Find first element that matches the given selector,

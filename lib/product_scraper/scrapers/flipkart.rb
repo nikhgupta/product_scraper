@@ -86,7 +86,7 @@ module ProductScraper
       def extract_specs
         rows = find('.productSpecs .specTable tr', all: true)
         return {} if rows.empty?
-        header, data = nil, {}
+        header, data = nil, {}; nil    # appending nil is fasterer
 
         rows.map do |row|
           row.search('td,th').map do |cell|
