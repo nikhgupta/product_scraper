@@ -74,7 +74,7 @@ module ProductScraper
 
       def extract_categories
         cats = sanitize_text_lines_of('.breadcrumb-wrap ul li a')
-        return if cats.empty?
+        return [] if cats.empty?
         cats.shift
         cats
       end

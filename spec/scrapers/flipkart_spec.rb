@@ -45,7 +45,7 @@ describe ProductScraper::Scrapers::Flipkart do
           available: true,
           brand_name: 'WS Retail',
           price: 'INR 6999'.to_money,
-          marked_price: 'INR 7999'.to_money
+          marked_price: nil
         )
       end
       it 'fetches images for the product' do
@@ -88,7 +88,7 @@ describe ProductScraper::Scrapers::Flipkart do
         expect(@response[:description][:markdown]).not_to include(html)
       end
       it 'fetches ratings for the product' do
-        expect(@response[:ratings]).to contain_key_pairs(average: 78, count: 1168)
+        expect(@response[:ratings]).to contain_key_pairs(average: 78, count: 1399)
       end
       it 'fetches primary and other relevant categories for the product' do
         expect(@response).to contain_key_pairs(
@@ -111,7 +111,7 @@ describe ProductScraper::Scrapers::Flipkart do
         brand_name: 'Appro',
         marked_price: 'INR 249.00'.to_money,
         name: "KSBT Born To Have LXS-001 USB Led Light",
-        price: 'INR 125.00'.to_money,
+        price: 'INR 99.00'.to_money,
         available: true,
         priority_service: false,
         primary_category: 'Computers',
@@ -129,12 +129,12 @@ describe ProductScraper::Scrapers::Flipkart do
         brand_name: "pantagonesatellite",
         name: 'FEYE SP151 10000 mAh',
         marked_price: 'INR 4500.00'.to_money,
-        price: 'INR 1999.00'.to_money,
+        price: 'INR 2199.00'.to_money,
         available: false,
         priority_service: false,
         ratings: { 'average' => 0, 'count' => 0 },
-        primary_category: 'Mobiles & Accessories',
-        categories: ['Mobiles & Accessories', 'Mobile Accessories', 'Power Banks', 'FEYE Power Banks'],
+        primary_category: nil,
+        categories: [],
         features: [
           'Smart LED  Indicator',
           '7 Layer Protection',

@@ -49,7 +49,7 @@ describe ProductScraper::Scrapers::Amazon do
           priority_service: 'Sold by Amazon',
           available: true,
           brand_name: 'Best Choice Products',
-          price: '$69.16'.to_money,
+          price: '$69.00'.to_money,
           marked_price: '$124.95'.to_money,
         )
       end
@@ -69,7 +69,7 @@ describe ProductScraper::Scrapers::Amazon do
         ]).for_key(:features)
       end
       it 'fetches description for the product' do
-        html = '<div class="productDescriptionWrapper">'
+        html = '<div id="productDescription"'
         text = 'This guitar has an attractive blue finish'
 
         expect(@response[:description][:html]).to include(text)
@@ -82,7 +82,7 @@ describe ProductScraper::Scrapers::Amazon do
         expect(@response[:description][:markdown]).not_to include(html)
       end
       it 'fetches ratings for the product' do
-        expect(@response[:ratings]).to contain_key_pairs(average: 86, count: 37)
+        expect(@response[:ratings]).to contain_key_pairs(average: 90, count: 39)
       end
       it 'fetches primary and other relevant categories for the product' do
         expect(@response).to contain_key_pairs(
@@ -105,7 +105,7 @@ describe ProductScraper::Scrapers::Amazon do
         marked_price: 'CAD 5551.04'.to_money,
         primary_category: 'Watches',
         categories: ['Watches', 'Men', 'Wrist Watches'],
-        ratings: { 'average' => 88, 'count' => 11 },
+        ratings: { 'average' => 88, 'count' => 12 },
         images: [
           'http://ecx.images-amazon.com/images/I/51dpiEHcAoL.jpg',
           'http://ecx.images-amazon.com/images/I/31fExLiRjVL.jpg',
@@ -161,7 +161,7 @@ describe ProductScraper::Scrapers::Amazon do
         priority_service: false,
         available: true,
         brand_name: 'Idee',
-        price: 'INR 2,537.00'.to_money,
+        price: 'INR 2,575.00'.to_money,
         canonical_url: 'http://www.amazon.in/Idee-Aviator-Sunglasses-Black-S1909/dp/B00O376XTI',
         primary_category: 'Clothing & Accessories',
         categories: ['Clothing & Accessories', 'Women', 'Sunglasses & Eyewear Accessories', 'Sunglasses'],
@@ -182,15 +182,15 @@ describe ProductScraper::Scrapers::Amazon do
         ]
       )
     end
-    it 'fetches information for a product being fulfilled by amazon.in' do
+    it 'fetches information for a product on amazon.in' do
       setup_scraper_and_run_for_kind :amazon, :in_fulfilled
       expect(@response).to contain_key_pairs(
         uid: "B00O37711M",
         brand_name: "Idee",
         available: true,
-        priority_service: "Fulfilled by Amazon",
-        price: "INR 2,136.00".to_money,
-        marked_price: "INR 2,670.00".to_money,
+        priority_service: false,
+        price: "INR 2,670.00".to_money,
+        marked_price: nil,
         canonical_url: "http://www.amazon.in/Idee-Aviator-Sunglasses-Gunmetal-S1909/dp/B00O37711M",
         primary_category: "Clothing & Accessories",
         categories: ["Clothing & Accessories", "Women", "Sunglasses & Eyewear Accessories", "Sunglasses"],

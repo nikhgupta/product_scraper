@@ -64,7 +64,7 @@ module ProductScraper
     end
 
     def extract_primary_category
-      extract_categories.first
+      extract_categories ? extract_categories.first : nil
     end
 
     def extract_extras; {}; end
