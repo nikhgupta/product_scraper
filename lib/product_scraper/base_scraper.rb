@@ -51,9 +51,7 @@ module ProductScraper
         prioritized: !!response[:priority_service],
         merchant: { name: self.class.name.demodulize.underscore },
         url: response[:canonical_url],
-        images: response[:images].map do |image|
-          image.gsub(/.*\/I\/(.*?)\._.*_\..*/, '\1')
-        end
+        images: response[:images]
       }
       data[:brand] = { name: response[:brand_name] } if response[:brand_name]
       data[:description] = response[:description][:markdown] if response[:description] && response[:description][:markdown]
