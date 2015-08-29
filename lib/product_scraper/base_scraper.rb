@@ -58,6 +58,7 @@ module ProductScraper
       data[:price] = response[:price] if response[:price]
       data[:marked_price] = response[:marked_price] if response[:marked_price]
       data[:url_hash] = response[:hash]
+      data[:categories] = response[:categories]
       data #.freeze
     end
 
