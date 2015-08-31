@@ -17,7 +17,7 @@ module ProductScraper
       end
 
       def extract_name
-        text_for '#productTitle'
+        text_for('#productTitle') || text_for("#heroImage #title")
       end
 
       def extract_priority_service
@@ -52,7 +52,8 @@ module ProductScraper
       end
 
       def extract_canonical_url
-        attribute_for 'link[rel="canonical"]', :href
+        attribute_for('link[rel="canonical"]', :href) ||
+          "#{@page.uri.scheme}://#{@page.uri.host}/gp/product/#{extract_uid}"
       end
 
       def extract_features
