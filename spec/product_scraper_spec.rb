@@ -23,7 +23,7 @@ describe ProductScraper do
     expect{ ProductScraper.class_for(:test) }.not_to raise_error
   end
 
-  it 'provides method to scraper data from a given URL' do
+  it 'provides method to scrape data from a given URL' do
     url  = 'http://www.example.com/product-url'
     info = ProductScraper.fetch_info(url)
     expect(info[:data]).to be_truthy

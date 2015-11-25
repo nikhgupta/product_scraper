@@ -2,9 +2,9 @@
 module ProductScraper
   module Scrapers
     class Test < ProductScraper::BaseScraper
-      def self.can_parse?(uri)
-        uri.host =~ /\A(?:|www\.)example\.com\z/
-      end
+
+      product -> (uri) { true }
+      host -> (uri) { uri.host =~ /\A(?:|www\.)example\.com\z/ }
 
       def all_info
         { data: true }

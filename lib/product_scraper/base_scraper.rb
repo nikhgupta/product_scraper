@@ -3,15 +3,25 @@ module ProductScraper
   class BaseScraper
     include ProductScraper::Helpers
 
-    # By default, reject all URLs for scraping purposes.
-    def self.can_parse?(uri); false; end
-    # strip out scheme, and www prefix and generate a hash for this URL
-    def self.normalize(uri); uri.path; end
-    def self.url_hash_for(url)
-      uri = URI.parse(url)
-      uri = URI.parse("http://#{url}") if uri.scheme.nil?
-      dom = uri.host.gsub(/^www\./,'')
-      Digest::MD5.hexdigest(dom + [normalize(uri)].flatten.join)
+    class << self
+      def product(uri, &block)
+        metaklass = class << self; self; end
+        metaklass.send :define_method, :url_matches?, uri, &block
+      end
+
+      def host(uri, &block)
+        metaklass = class << self; self; end
+        metaklass.send :define_method, :host_matches?, uri, &block
+      end
+
+      def uuid(uri, &block)
+        metaklass = class << self; self; end
+        metaklass.send :define_method, :inferred_uuid, uri, &block
+      end
+
+      def url_matches?(uri);  nil; end
+      def inferred_uuid(uri); nil; end
+      def host_matches?(uri); nil; end
     end
 
     attr_accessor :url, :options
@@ -21,24 +31,29 @@ module ProductScraper
       self.options = options
     end
 
-    def run
-      get url
-      response = HashWithIndifferentAccess.new
-      return response unless page && page.body
-      page.encoding = 'utf-8'
-
-      %w[ uid name priority_service available brand_name price marked_price
-       canonical_url primary_category categories ratings images features
-      description extras ].each do |field|
-        method = "extract_#{field}"
-        value = send(method) if respond_to?(method)
-        value = HashWithIndifferentAccess.new(value) if value.is_a?(Hash)
-        response[field] = value # unless value.nil?
-      end
-      response[:hash] = self.class.url_hash_for(url)
-      response.freeze
+    def uuid
+      ProductScraper.uuid(url)[:uuid]
     end
-    alias :all_info :run
+
+    def fetch
+      response = { 'scraper' => self.class, 'uuid' => self.uuid }
+
+      get url
+      response["response_code"] = page.code.to_i
+
+      %w[pid name priority_service available brand_name price marked_price
+      canonical_url primary_category categories ratings images features
+      description extras].each do |method|
+        value = send(method) if respond_to?(method)
+        value = Hash[value.map{|k,v| [k.to_s, v]}] if value.is_a?(Hash)
+        response[method] = value
+      end
+      response
+    rescue Mechanize::ResponseCodeError => e
+      response["error"] = e.message
+      response["response_code"] = e.response_code.to_i
+      response
+    end
 
     def basic_info
       response = all_info
@@ -62,10 +77,10 @@ module ProductScraper
       data #.freeze
     end
 
-    def extract_primary_category
-      extract_categories ? extract_categories.first : nil
+    def primary_category
+      categories ? categories.first : nil
     end
 
-    def extract_extras; {}; end
+    def extras; {}; end
   end
 end

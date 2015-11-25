@@ -33,8 +33,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'vcr'
   spec.add_development_dependency 'fuubar'
   spec.add_development_dependency 'rspec_junit_formatter', '0.2.2'
+  spec.add_development_dependency 'pry'
 
-  spec.add_dependency 'pry'
   spec.add_dependency 'monetize'
   spec.add_dependency 'mechanize'
   spec.add_dependency 'activesupport'

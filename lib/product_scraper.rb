@@ -33,39 +33,58 @@ module ProductScraper
     ProductScraper::Scrapers.const_get(scraper.to_s.camelize)
   end
 
-  def self.new(url, options = {})
-    scraper = can_parse?(url)
-    raise Error, "Merchant not implemented." if scraper.nil?
-    scraper.new(url, options)
-  end
-
-  def self.url_hash_for(url)
-    scraper = can_parse?(url)
-    scraper ? scraper.url_hash_for(url) : nil
-  end
-
-  def self.can_parse?(url)
-    uri = URI.parse(url) rescue nil
-    raise_error! "URL to scrape is invalid" unless uri
-    uri = URI.parse("http://#{uri}") if uri.scheme.nil?
-
-    available_scrapers.map do |scraper|
-      class_for(scraper)
-    end.detect do |scraper|
-      scraper.can_parse?(uri)
-    end
-  end
-
-  def self.fetch_info(url, options = {})
-    new(url, options).all_info
-  end
-
-  def self.fetch_basic_info(url, options = {})
-    new(url, options).basic_info
-  end
-
   def self.raise_error!(message)
     raise ProductScraper::Error, message
+  end
+
+  class << self
+    def configure(&block)
+      raise Error, "must provide a block" unless block_given?
+      block.arity.zero? ? instance_eval(&block) : yield(self)
+    end
+
+    def validate(key, options, &block)
+      klass = class_for(options[:for]) rescue nil
+      klass.send(key, &block) if klass
+    end
+
+    def unique_id_for(scraper, &block)
+      klass = class_for(options[:for]) rescue nil
+      klass.send(:uuid, &block) if klass
+    end
+
+    def fetch(url, options = {})
+      new(url, options).fetch
+    end
+
+    def new(url, options = {})
+      info = uuid(url)
+      info[:scraper].new(url, options) unless info[:uuid].to_s.empty?
+    end
+
+    def uuid(url)
+      uri = URI.parse(URI.encode(url)) rescue nil
+      uri = URI.parse("http://#{uri}") if uri.scheme.nil?
+
+      scrapers = available_scrapers.map do |scraper|
+        class_for(scraper)
+      end.select do |scraper|
+        scraper.host_matches?(uri)
+      end
+
+      scraper = scrapers.detect{|scraper| scraper.url_matches?(uri)}
+      unique_id = (scraper.inferred_uuid(uri) rescue nil) if scraper
+      unique_id = Digest::MD5.hexdigest(uri.path) if unique_id.to_s.empty?
+      unique_id = "#{scraper.to_s.demodulize.parameterize}-#{unique_id}"
+
+      case
+      when scraper then { uuid: unique_id.upcase, scraper: scraper }
+      when scrapers.any? then { scrapers: scrapers, reason: :not_a_product }
+      else { reason: :not_implemented }
+      end
+    rescue URI::InvalidURIError, ProductScraper::Error => e
+      { reason: :error, error: { class: e.class, message: e.message }}
+    end
   end
 end
 

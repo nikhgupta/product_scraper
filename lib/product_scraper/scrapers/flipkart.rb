@@ -1,59 +1,59 @@
 module ProductScraper
   module Scrapers
     class Flipkart < ProductScraper::BaseScraper
-      def self.can_parse?(uri)
-        return false unless uri.host =~ /\A(?:|www\.)flipkart\.com\z/
-        uri.path =~ %r{/.*?/p/.*}
-      end
 
-      def extract_uid
+      product -> (uri){ uri.path =~ %r{/.*?/p/.*} }
+      host -> (uri){ uri.host =~ /\A(?:|www\.)flipkart\.com\z/ }
+      uuid -> (uri){ uri.path.match(%r{/.+/p/(.*)(?:/|$)})[1] }
+
+      def pid
         query_hash['pid'] ||
         first_of_data_for('product-id') ||
         data_for('.reviewSection', 'pid')
       end
 
-      def extract_name
+      def name
         text_for('h1.title')
       end
 
-      def extract_priority_service
+      def priority_service
         has_css?('span.fk-advantage')
       end
 
-      def extract_available
+      def available
         !has_css?('.out-of-stock-section')
       end
 
-      def extract_brand_name
+      def brand_name
         text_for('.seller-badge a.seller-name')
       end
 
-      def extract_price
-        __extract_currency '.pricing .selling-price'
+      def price
+        __currency '.pricing .selling-price'
       end
 
-      def extract_marked_price
-        __extract_currency '.pricing .price'
+      def marked_price
+        __currency '.pricing .price'
       end
 
-      def extract_canonical_url
+      def canonical_url
         attribute_for 'link[rel="canonical"]', :href
       end
 
-      def extract_features
+      def features
         selectors = ['ul.keyFeaturesList li', 'ul li.key-specification']
         selector  = selectors.detect { |sel| has_css?(sel) }
         sanitize_text_lines_of selector
       end
 
-      def extract_images
+      def images
         styles = attribute_for '.carousel li .thumb', 'style', all: true
         images = styles.map { |style| style.scan(/url\((.*)\)/) }.flatten
         images = images.select { |url| url =~ /(jpe?g|gif|png|bmp)$/ }
         images = images.map { |a| a.gsub(/-\d+x\d+-/, '-original-') }
       end
 
-      def extract_description
+      def description
         selector = ['[data-ctrl="RichProductDescription"]',
                     '.description.specSection'].detect do |sel|
           has_css?(sel) && !text_for(sel).empty?
@@ -66,24 +66,24 @@ module ProductScraper
           markdown: to_sanitized_markdown(description.to_s) }
       end
 
-      def extract_ratings
+      def ratings
         rating = attribute_for('.ratings [itemprop="ratingValue"]', 'content')
         counter = text_for('.ratings [itemprop="ratingCount"]')
         { average: (rating.to_f * 20).round(0), count: counter.to_i }
       end
 
-      def extract_categories
+      def categories
         cats = sanitize_text_lines_of('.breadcrumb-wrap ul li a')
         return [] if cats.empty?
         cats.shift
         cats
       end
 
-      def extract_extras
-        { specs: extract_specs }
+      def extras
+        { specs: specs }
       end
 
-      def extract_specs
+      def specs
         rows = find('.productSpecs .specTable tr', all: true)
         return {} if rows.empty?
         header, data = nil, {}; nil    # appending nil is fasterer
@@ -112,7 +112,7 @@ module ProductScraper
 
       private
 
-      def __extract_currency(selector)
+      def __currency(selector)
         return unless has_css?(selector)
         text = text_for(selector)
         text = text.gsub(/^Rs\./, 'INR')
