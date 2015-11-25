@@ -35,11 +35,15 @@ module ProductScraper
       ProductScraper.uuid(url)[:uuid]
     end
 
+    def js?
+      options.fetch(:js, false) === true
+    end
+
     def fetch
       response = { 'scraper' => self.class, 'uuid' => self.uuid }
 
       get url
-      response["response_code"] = page.code.to_i
+      response["response_code"] = status_code
 
       %w[pid name priority_service available brand_name price marked_price
       canonical_url primary_category categories ratings images features

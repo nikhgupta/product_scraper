@@ -6,15 +6,22 @@ module ProductScraper::Helpers
   include Selector
   include Markdown
   include Attributes
+  include Capybara
 
-  attr_reader :page
+  attr_accessor :page
 
   def get url
-    @page = agent.get url
+    if js?
+      agent.visit url
+      self.page = Nokogiri::HTML(agent.html)
+    else
+      self.page = agent.get url
+      page.encoding = 'utf-8'
+    end
   end
 
   def current_uri
-    page.uri
+    js? ? URI.parse(agent.current_url) : page.uri
   end
 
   def current_url
@@ -27,6 +34,10 @@ module ProductScraper::Helpers
     path.starts_with?("/") ? "#{prefix}#{path}" : path
   end
 
+  def status_code
+    js? ? agent.status_code.to_i : page.code.to_i
+  end
+
   def query_hash
     query = current_uri.query.split('&').map do |part|
       (part.split('=') << "" << "").first(2)
@@ -35,8 +46,11 @@ module ProductScraper::Helpers
   end
 
   def agent
-    @agent ||= Mechanize.new do |a|
-      a.user_agent_alias = 'Mac Safari'
+    if js?
+      self.class.include ProductScraper::Helpers::Capybara
+      @agent ||= new_session
+    else
+      @agent ||= Mechanize.new{ |a| a.user_agent_alias = 'Mac Safari' }
     end
   end
 end
