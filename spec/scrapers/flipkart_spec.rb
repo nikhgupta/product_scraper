@@ -33,13 +33,9 @@ describe ProductScraper::Scrapers::Flipkart do
       before(:context) do
         setup_scraper_and_run_for_kind :flipkart, :full
       end
-      it 'returns a frozen hash with indifferent access' do
-        expect(@response).to be_a(HashWithIndifferentAccess)
-        expect(@response).to be_frozen
-      end
       it 'fetches basic information about the product' do
         expect(@response).to contain_key_pairs(
-          uid: "MOBE4G6GTH2QDACF",
+          pid: "MOBE4G6GTH2QDACF",
           name: 'Moto E (2nd Gen) 4G',
           priority_service: true,
           available: true,
@@ -75,20 +71,20 @@ describe ProductScraper::Scrapers::Flipkart do
         text = 'efficient quad-core processor'
         mark = '### Moto E 2nd Gen'
 
-        expect(@response[:description][:html]).to include(text)
-        expect(@response[:description][:html]).to include(html)
-        expect(@response[:description][:html]).not_to include(mark)
+        expect(@response['description']['html']).to include(text)
+        expect(@response['description']['html']).to include(html)
+        expect(@response['description']['html']).not_to include(mark)
 
-        expect(@response[:description][:text]).to include(text)
-        expect(@response[:description][:text]).not_to include(html)
-        expect(@response[:description][:text]).not_to include(mark)
+        expect(@response['description']['text']).to include(text)
+        expect(@response['description']['text']).not_to include(html)
+        expect(@response['description']['text']).not_to include(mark)
 
-        expect(@response[:description][:markdown]).to include(text)
-        expect(@response[:description][:markdown]).to include(mark)
-        expect(@response[:description][:markdown]).not_to include(html)
+        expect(@response['description']['markdown']).to include(text)
+        expect(@response['description']['markdown']).to include(mark)
+        expect(@response['description']['markdown']).not_to include(html)
       end
       it 'fetches ratings for the product' do
-        expect(@response[:ratings]).to contain_key_pairs(average: 78, count: 1399)
+        expect(@response['ratings']).to contain_key_pairs(average: 78, count: 1399)
       end
       it 'fetches primary and other relevant categories for the product' do
         expect(@response).to contain_key_pairs(
@@ -100,14 +96,14 @@ describe ProductScraper::Scrapers::Flipkart do
       end
 
       it 'fetches specs for the product' do
-        zoom = @response[:extras][:specs][:camera][:zoom]
+        zoom = @response['extras']['specs']['camera']['zoom']
         expect(zoom).to eq("Digital Zoom - 4x")
       end
     end
     it 'fetches information for a product (with desc, rating) not shipped by Flipkart' do
       setup_scraper_and_run_for_kind :flipkart, :no_priority_without_desc_rating
       expect(@response).to contain_key_pairs(
-        uid: 'USGE9FXQGXMYFYA4',
+        pid: 'USGE9FXQGXMYFYA4',
         brand_name: 'Appro',
         marked_price: 'INR 249.00'.to_money,
         name: "KSBT Born To Have LXS-001 USB Led Light",
@@ -125,7 +121,7 @@ describe ProductScraper::Scrapers::Flipkart do
     it 'fetches information for a product which is out of stock' do
       setup_scraper_and_run_for_kind :flipkart, :out_of_stock
       expect(@response).to contain_key_pairs(
-        uid: "PWBEYZKE66JFZ4KM",
+        pid: "PWBEYZKE66JFZ4KM",
         brand_name: "pantagonesatellite",
         name: 'FEYE SP151 10000 mAh',
         marked_price: 'INR 4500.00'.to_money,

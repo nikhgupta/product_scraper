@@ -2,31 +2,25 @@ module ProductScraper
   module Scrapers
     class Amazon < ProductScraper::BaseScraper
 
-      def self.can_parse?(uri)
-        return false unless uri.host =~ /\A(?:|www\.)amazon\.((?:[a-z]+\.?)+)\z/
-        uri.path =~ /\/(dp|gp\/product)\/[A-Z0-9]{10}/
-      end
+      product  { |uri| uri.path =~ /\/(dp|gp\/product)\/[A-Z0-9]{10}/ }
+      host     { |uri| uri.host =~ /\A(?:|www\.)amazon\.((?:[a-z]+\.?)+)\z/ }
+      set_uuid { |uri| uri.path.match(%r{/(?:dp|gp/product)/(.*?)(?:/|$)})[1] }
 
-      def self.normalize(uri)
-        match = uri.path.match(%r{/(?:dp|gp/product)/(.*?)(?:/|$)})
-        match ? match[1] : nil
-      end
-
-      def extract_uid
+      def pid
         attribute_for '#addToCart #ASIN', 'value'
       end
 
-      def extract_name
+      def name
         text_for('#productTitle') || text_for("#heroImage #title")
       end
 
-      def extract_priority_service
+      def priority_service
         return "Sold by Amazon" if has_text?("Ships from and sold by Amazon.com")
         return "Fulfilled by Amazon" if has_link?("Fulfilled by Amazon")
         return false
       end
 
-      def extract_available
+      def available
         selector = '[data-feature-name="availability"]'
         return true unless has_css?(selector)
         text  = text_for(selector).downcase
@@ -34,40 +28,40 @@ module ProductScraper
         !(text =~ unavailable_regex)
       end
 
-      def extract_brand_name
+      def brand_name
         text_for('#brand') if has_css?('#brand')
       end
 
-      def extract_price
+      def price
         if has_css?('#unqualifiedBuyBox')
           selector = '#unqualifiedBuyBox .a-color-price'
         else
           selector = '#price .a-size-medium.a-color-price:not(.a-text-strike)'
         end
-        __extract_currency(selector)
+        __currency(selector)
       end
 
-      def extract_marked_price
-        __extract_currency('#price .a-text-strike')
+      def marked_price
+        __currency('#price .a-text-strike')
       end
 
-      def extract_canonical_url
+      def canonical_url
         attribute_for('link[rel="canonical"]', :href) ||
-          "#{@page.uri.scheme}://#{@page.uri.host}/gp/product/#{extract_uid}"
+          "#{@page.uri.scheme}://#{@page.uri.host}/gp/product/#{pid}"
       end
 
-      def extract_features
+      def features
         sanitize_text_lines_of '[data-feature-name="featurebullets"] li'
       end
 
-      def extract_images
+      def images
         thumbs = attribute_for("#altImages img", :src, all: true)
         thumbs = thumbs.map{|a| a.gsub(/\._(.*?)\d+\_\./, '.')}
         no_image = thumbs.count == 1 && thumbs[0] =~ /\/no-img-.*?\.gif$/
         no_image ? [] : thumbs
       end
 
-      def extract_description
+      def description
         if has_css?('#productDescription .content')
           description = find('#productDescription .content')
         elsif has_css?('#productDescription')
@@ -86,7 +80,7 @@ module ProductScraper
           markdown: to_sanitized_markdown(description.to_s) }
       end
 
-      def extract_ratings
+      def ratings
         default = { average: 0, count: 0 }
         if has_css?('.reviewCountTextLinkedHistogram')
           rating  = '.reviewCountTextLinkedHistogram'
@@ -111,20 +105,20 @@ module ProductScraper
         { average: rating, count: counter }
       end
 
-      def extract_categories
+      def categories
         selector = "#wayfinding-breadcrumbs_container li a"
         cats = sanitize_text_lines_of(selector)
         return cats if cats.any?
         [attribute_for('#addToCart #storeID', 'value').titleize]
       end
 
-      def extract_extras
+      def extras
         { can_gift: has_text?("Gift-wrap available") }
       end
 
       private
 
-      def __extract_currency(selector)
+      def __currency(selector)
         return unless has_css?(selector)
         text = text_for(selector)
         text = case

@@ -17,7 +17,7 @@ end
 RSpec::Matchers.define :contain_key_pairs do |expected|
   match do |actual|
     expect(@actual).to be_a(Hash)
-    if @actual.is_a?(HashWithIndifferentAccess) && expected.is_a?(Hash)
+    if @actual.is_a?(Hash) && expected.is_a?(Hash)
       method = expected.keys.first.is_a?(Symbol) ? :to_sym : :to_s
       @actual = Hash[@actual.map{|k,v| [k.send(method),v]}]
       @actual = @actual.select{|k,v| expected.keys.include?(k)}
@@ -42,7 +42,7 @@ end
 RSpec::Matchers.define :contain_items do |expected|
   match do |actual|
     @old_actual = actual
-    @actual = key ? actual[key] : actual
+    @actual = key ? actual[key.to_s] : actual
     expect(@actual).to be_a(Array)
     @actual -= (@actual - expected)
     expect(@actual).to eq(expected)

@@ -38,13 +38,9 @@ describe ProductScraper::Scrapers::Amazon do
       before(:context) do
         setup_scraper_and_run_for_kind :amazon, :com_full
       end
-      it 'returns a frozen hash with indifferent access' do
-        expect(@response).to be_a(HashWithIndifferentAccess)
-        expect(@response).to be_frozen
-      end
       it 'fetches basic information about the product' do
         expect(@response).to contain_key_pairs(
-          uid: 'B004HZIR9A',
+          pid: 'B004HZIR9A',
           name: 'Full 41" Acoustic Guitar with Guitar Case & More Accessories Combo Kit Guitar Blue',
           priority_service: 'Sold by Amazon',
           available: true,
@@ -72,17 +68,17 @@ describe ProductScraper::Scrapers::Amazon do
         html = '<div id="productDescription"'
         text = 'This guitar has an attractive blue finish'
 
-        expect(@response[:description][:html]).to include(text)
-        expect(@response[:description][:html]).to include(html)
+        expect(@response['description']['html']).to include(text)
+        expect(@response['description']['html']).to include(html)
 
-        expect(@response[:description][:text]).to include(text)
-        expect(@response[:description][:text]).not_to include(html)
+        expect(@response['description']['text']).to include(text)
+        expect(@response['description']['text']).not_to include(html)
 
-        expect(@response[:description][:markdown]).to include(text)
-        expect(@response[:description][:markdown]).not_to include(html)
+        expect(@response['description']['markdown']).to include(text)
+        expect(@response['description']['markdown']).not_to include(html)
       end
       it 'fetches ratings for the product' do
-        expect(@response[:ratings]).to contain_key_pairs(average: 90, count: 39)
+        expect(@response['ratings']).to contain_key_pairs(average: 90, count: 39)
       end
       it 'fetches primary and other relevant categories for the product' do
         expect(@response).to contain_key_pairs(
@@ -96,7 +92,7 @@ describe ProductScraper::Scrapers::Amazon do
     it 'fetches information for a product (amazon.ca) not fulfilled by Amazon' do
       setup_scraper_and_run_for_kind :amazon, :ca_not_fulfilled
       expect(@response).to contain_key_pairs(
-        uid: 'B0072C8SMQ',
+        pid: 'B0072C8SMQ',
         name: "Omega Men's 212.30.41.20.01.003 Seamaster Black Dial Watch",
         priority_service: false,
         available: true,
@@ -123,7 +119,7 @@ describe ProductScraper::Scrapers::Amazon do
       setup_scraper_and_run_for_kind :amazon, :ca_price_range_no_ratings
       expect(@response).to contain_key_pairs(
         marked_price: nil,
-        uid: 'B00ZQ0NRDQ',
+        pid: 'B00ZQ0NRDQ',
         available: true,
         priority_service: false,
         brand_name: 'Fabulicious',
@@ -149,7 +145,7 @@ describe ProductScraper::Scrapers::Amazon do
     it 'fetches information for a product without an image' do
       setup_scraper_and_run_for_kind :amazon, :ca_without_image
       expect(@response).to contain_key_pairs(
-        uid: 'B00LVBHQAE',
+        pid: 'B00LVBHQAE',
         images: []
       )
     end
@@ -157,7 +153,7 @@ describe ProductScraper::Scrapers::Amazon do
       setup_scraper_and_run_for_kind :amazon, :in_no_buybox
       expect(@response).to contain_key_pairs(
         marked_price: nil,
-        uid: 'B00O376XTI',
+        pid: 'B00O376XTI',
         priority_service: false,
         available: true,
         brand_name: 'Idee',
@@ -185,7 +181,7 @@ describe ProductScraper::Scrapers::Amazon do
     it 'fetches information for a product on amazon.in' do
       setup_scraper_and_run_for_kind :amazon, :in_fulfilled
       expect(@response).to contain_key_pairs(
-        uid: "B00O37711M",
+        pid: "B00O37711M",
         brand_name: "Idee",
         available: true,
         priority_service: false,
@@ -214,11 +210,11 @@ describe ProductScraper::Scrapers::Amazon do
     it 'fetches information for a product with more features correctly' do
       setup_scraper_and_run_for_kind :amazon, :in_has_more_features
       markdown = "### From the Manufacturer\n\n##### TITANIUM S310"
-      expect(@response[:description][:markdown]).to include(markdown)
-      expect(@response[:extras]).to contain_key_pairs(can_gift: true)
+      expect(@response['description']['markdown']).to include(markdown)
+      expect(@response['extras']).to contain_key_pairs(can_gift: true)
       expect(@response).not_to contain_items([
         "See more product details"
-      ]).for_key(:features)
+      ]).for_key('features')
     end
   end
 end

@@ -7,12 +7,11 @@ module ProductScraper
       @casettes_path = path
     end
 
-    def fetch_info(url, options = {})
-      with_replay(url) { new(url, options).all_info }
-    end
-
-    def fetch_basic_info(url, options = {})
-      with_replay(url) { new(url, options).basic_info }
+    def fetch(url, options = {})
+      with_replay(url) do
+        scraper = new(url, options)
+        scraper ? scraper.fetch : nil
+      end
     end
 
     private
