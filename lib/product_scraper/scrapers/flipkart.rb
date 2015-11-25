@@ -50,7 +50,7 @@ module ProductScraper
         styles = attribute_for '.carousel li .thumb', 'style', all: true
         images = styles.map { |style| style.scan(/url\((.*)\)/) }.flatten
         images = images.select { |url| url =~ /(jpe?g|gif|png|bmp)$/ }
-        images = images.map { |a| a.gsub(/-\d+x\d+-/, '-1100x1100-') }
+        images = images.map { |a| a.gsub(/-\d+x\d+-/, '-original-') }
       end
 
       def extract_description

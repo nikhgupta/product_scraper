@@ -50,12 +50,12 @@ describe ProductScraper::Scrapers::Flipkart do
       end
       it 'fetches images for the product' do
         expect(@response).to contain_items([
-          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-1100x1100-imae5yvnugydbf9d.jpeg',
-          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-1100x1100-imae5yvnyrhtdwhh.jpeg',
-          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-1100x1100-imae5yvnyktamcfk.jpeg',
-          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-1100x1100-imae5yvndbpuzsex.jpeg',
-          'http://img6a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-1100x1100-imae5yvnc7zhg9c3.jpeg',
-          'http://img6a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-1100x1100-imae5yvnuyfhm6fv.jpeg'
+          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-original-imae5yvnugydbf9d.jpeg',
+          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-original-imae5yvnyrhtdwhh.jpeg',
+          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-original-imae5yvnyktamcfk.jpeg',
+          'http://img5a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-original-imae5yvndbpuzsex.jpeg',
+          'http://img6a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-original-imae5yvnc7zhg9c3.jpeg',
+          'http://img6a.flixcart.com/image/mobile/a/c/f/motorola-moto-e-2nd-gen-xt1521-original-imae5yvnuyfhm6fv.jpeg'
         ]).for_key(:images)
       end
       it 'fetches feature list for the product' do
@@ -119,7 +119,7 @@ describe ProductScraper::Scrapers::Flipkart do
         ratings: { 'average' => 0, 'count' => 0 },
         categories: ["Computers", "Laptop Accessories", "USB Gadgets", "KSBT USB Gadgets"],
         images: [
-          'http://img6a.flixcart.com/image/usb-gadget/y/a/4/lxs-001-ksbt-1100x1100-imae8hmyjfxmgebw.jpeg'
+          'http://img6a.flixcart.com/image/usb-gadget/y/a/4/lxs-001-ksbt-original-imae8hmyjfxmgebw.jpeg'
         ])
     end
     it 'fetches information for a product which is out of stock' do
@@ -142,7 +142,7 @@ describe ProductScraper::Scrapers::Flipkart do
           'Smart LED Torch'
         ],
         images: [
-          'http://img6a.flixcart.com/image/power-bank/4/k/m/sp151-feye-1100x1100-imaeyzgfdzdf5knu.jpeg'
+          'http://img6a.flixcart.com/image/power-bank/4/k/m/sp151-feye-original-imaeyzgfdzdf5knu.jpeg'
         ])
     end
   end
