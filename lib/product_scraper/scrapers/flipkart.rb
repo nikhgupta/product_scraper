@@ -68,7 +68,12 @@ module ProductScraper
 
       def ratings
         rating = attribute_for('.ratings [itemprop="ratingValue"]', 'content')
-        counter = text_for('.ratings [itemprop="ratingCount"]')
+        if rating
+          counter = text_for('.ratings [itemprop="ratingCount"]')
+        else
+          rating  = find(".ratingHistogram .avgWrapper .bigStar").text.to_f
+          counter = find(".ratingHistogram .avgWrapper .subText:last()").text.gsub(/[^\d+]/, '').to_i
+        end
         { average: (rating.to_f * 20).round(0), count: counter.to_i }
       end
 

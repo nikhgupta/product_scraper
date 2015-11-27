@@ -19,16 +19,24 @@ module ProductScraper
         metaklass.send :define_method, :inferred_uuid, &block
       end
 
+      def sanitize(&block)
+        metaklass = class << self; self; end
+        metaklass.send :define_method, :sanitize_uri, &block
+      end
+
+      def sanitize_uri(url);  url; end
       def url_matches?(uri);  nil; end
       def inferred_uuid(uri); nil; end
       def host_matches?(uri); nil; end
-      def can_parse?(uri); host_matches?(uri) && url_matches?(uri); end
+      def can_parse?(uri)
+        host_matches?(uri) && url_matches?(sanitize_uri uri)
+      end
     end
 
     attr_accessor :url, :options
 
     def initialize(url, options = {})
-      self.url = url
+      self.url = ProductScraper.uuid(url)[:url]
       self.options = options
     end
 

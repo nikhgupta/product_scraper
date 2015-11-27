@@ -2,9 +2,18 @@ module ProductScraper
   module Scrapers
     class Amazon < ProductScraper::BaseScraper
 
-      product  { |uri| uri.path =~ /\/(dp|gp\/product)\/[A-Z0-9]{10}/ }
       host     { |uri| uri.host =~ /\A(?:|www\.)amazon\.((?:[a-z]+\.?)+)\z/ }
-      set_uuid { |uri| uri.path.match(%r{/(?:dp|gp/product)/(.*?)(?:/|$)})[1] }
+      product  { |uri| uri.path =~ /^\/dp\/.+$/ }
+      set_uuid { |uri| uri.path.match(/^\/dp\/(.*?)$/)[1] }
+
+      sanitize do |uri|
+        regex = /\/(?:dp|gp)\/(?:aw\/d\/|product\/)?(.*?)(?:$|\/)/
+        if match = uri.path.match(regex)
+          uri.path  = "/dp/#{match[1]}"
+          uri.query = nil
+        end
+        uri
+      end
 
       def pid
         attribute_for '#addToCart #ASIN', 'value'

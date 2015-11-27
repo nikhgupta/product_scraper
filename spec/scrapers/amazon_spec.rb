@@ -7,7 +7,7 @@ describe ProductScraper::Scrapers::Amazon do
       ca_not_fulfilled: 'http://www.amazon.ca/Omega-212-30-41-20-01-003-Seamaster-Black-Watch/dp/B0072C8SMQ/ref=sr_1_29?s=watch&ie=UTF8&qid=1436690429&sr=1-29',
       ca_price_range_no_ratings: 'http://www.amazon.ca/FABULICIOUS-CLEARLY-430-Womens-Closed-Sandal/dp/B00JEY0EAE/ref=sr_1_36?s=shoes&ie=UTF8&qid=1436695621&sr=1-36',
       ca_without_image: 'http://www.amazon.ca/Vince-Camuto-Womens-Kain-Jean/dp/B00Y3QICZ2/ref=pd_sim_sbs_309_1?ie=UTF8&refRID=0SXVS3Q50BYMAQ6EQWP1',
-      in_no_buybox: 'http://www.amazon.in/Idee-Aviator-Sunglasses-Black-S1909/dp/B00O376XTI/ref=sr_1_4?s=apparel&ie=UTF8&qid=1436699589&sr=1-4',
+      in_no_buybox: 'http://www.amazon.in/gp/aw/d/B00O376XTI/ref=sr_1_4?s=apparel&ie=UTF8&qid=1436699589&sr=1-4',
       in_fulfilled: 'http://www.amazon.in/Idee-Aviator-Sunglasses-Gunmetal-S1909/dp/B00O37711M/ref=sr_1_1?s=apparel&ie=UTF8&qid=1436699589&sr=1-1',
       has_video: 'http://www.amazon.com/dp/B00X4WHP5E/ref=cs_va_lb_0?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=desktop-hero-kindle-A&pf_rd_r=03ZSTRPA3RD5B0HXWT73&pf_rd_t=36701&pf_rd_p=2131589782&pf_rd_i=desktop',
       has_unique_desc: 'http://www.amazon.com/dp/B00X4WHP5E/ref=cs_va_lb_0?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=desktop-hero-kindle-A&pf_rd_r=03ZSTRPA3RD5B0HXWT73&pf_rd_t=36701&pf_rd_p=2131589782&pf_rd_i=desktop',
@@ -45,8 +45,8 @@ describe ProductScraper::Scrapers::Amazon do
           priority_service: 'Sold by Amazon',
           available: true,
           brand_name: 'Best Choice Products',
-          price: '$69.00'.to_money,
-          marked_price: '$124.95'.to_money,
+          price: '$67.95'.to_money,
+          marked_price: nil
         )
       end
       it 'fetches images for the product' do
@@ -65,7 +65,7 @@ describe ProductScraper::Scrapers::Amazon do
         ]).for_key(:features)
       end
       it 'fetches description for the product' do
-        html = '<div id="productDescription"'
+        html = '<h3 class="productDescriptionSource">'
         text = 'This guitar has an attractive blue finish'
 
         expect(@response['description']['html']).to include(text)
@@ -78,7 +78,7 @@ describe ProductScraper::Scrapers::Amazon do
         expect(@response['description']['markdown']).not_to include(html)
       end
       it 'fetches ratings for the product' do
-        expect(@response['ratings']).to contain_key_pairs(average: 90, count: 39)
+        expect(@response['ratings']).to contain_key_pairs(average: 92, count: 41)
       end
       it 'fetches primary and other relevant categories for the product' do
         expect(@response).to contain_key_pairs(
@@ -97,11 +97,11 @@ describe ProductScraper::Scrapers::Amazon do
         priority_service: false,
         available: true,
         brand_name: 'Omega',
-        price: 'CAD 4278.00'.to_money,
-        marked_price: 'CAD 5551.04'.to_money,
+        price: 'CAD 3971.07'.to_money,
+        marked_price: 'CAD 5832.20'.to_money,
         primary_category: 'Watches',
         categories: ['Watches', 'Men', 'Wrist Watches'],
-        ratings: { 'average' => 88, 'count' => 12 },
+        ratings: { 'average' => 96, 'count' => 14 },
         images: [
           'http://ecx.images-amazon.com/images/I/51dpiEHcAoL.jpg',
           'http://ecx.images-amazon.com/images/I/31fExLiRjVL.jpg',
@@ -123,11 +123,11 @@ describe ProductScraper::Scrapers::Amazon do
         available: true,
         priority_service: false,
         brand_name: 'Fabulicious',
-        price: "CAD 58.98".to_money,
+        price: "CAD 83.12".to_money,
         primary_category: 'Shoes & Handbags',
         name: "Fabulicious Women's Clearly430 Ankle Strap Fashion Pump",
         ratings: { 'average' => 0, 'count' => 0 },
-        categories: ['Shoes & Handbags', 'Shoes', 'Women'],
+        categories: ['Shoes & Handbags', 'Shoes', 'Women', 'Pumps & Heels'],
         images: [
           'http://ecx.images-amazon.com/images/I/41p3tfJe7rL.jpg',
           'http://ecx.images-amazon.com/images/I/41p3tfJe7rL.jpg'
@@ -146,36 +146,36 @@ describe ProductScraper::Scrapers::Amazon do
       setup_scraper_and_run_for_kind :amazon, :ca_without_image
       expect(@response).to contain_key_pairs(
         pid: 'B00LVBHQAE',
-        images: []
+        images: ["http://ecx.images-amazon.com/images/I/518JMqunG6L.jpg"]
       )
     end
     it 'fetches information for a product (amazon.in) without a buyBox' do
       setup_scraper_and_run_for_kind :amazon, :in_no_buybox
       expect(@response).to contain_key_pairs(
-        marked_price: nil,
         pid: 'B00O376XTI',
         priority_service: false,
         available: true,
         brand_name: 'Idee',
-        price: 'INR 2,575.00'.to_money,
+        price: 'INR 2,475.00'.to_money,
+        marked_price: 'INR 2,690.00'.to_money,
         canonical_url: 'http://www.amazon.in/Idee-Aviator-Sunglasses-Black-S1909/dp/B00O376XTI',
         primary_category: 'Clothing & Accessories',
         categories: ['Clothing & Accessories', 'Women', 'Sunglasses & Eyewear Accessories', 'Sunglasses'],
-        ratings: { 'average' => 0, 'count' => 0},
+        ratings: { 'average' => 80, 'count' => 3},
         images: [
           'http://ecx.images-amazon.com/images/I/41AzpxTL9mL.jpg',
           'http://ecx.images-amazon.com/images/I/41V9CXxPMdL.jpg',
           'http://ecx.images-amazon.com/images/I/31EI%2BtVxmTL.jpg',
           'http://ecx.images-amazon.com/images/I/41mYjmeJvkL.jpg'
         ], features: [
-          'Plastic lens with Metal frame',
-          'Lens Type: Gradient',
-          'Ideal for: Men. Women',
-          'Grey lens with Black  colored frame',
-          'Non-Polarized',
-          'Eye Width: 57 MM; Nose Bridge: 15 MM; Temple Length: 140 MM',
-          '100% UV Protected'
-        ]
+          "Plastic lens with Metal frame",
+          "Lens Type: Gradient",
+          "Eye Width: 61 MM",
+          "Ideal for: Men. Women",
+          "Grey lens with Black colored frame",
+          "Non-Polarized",
+          "Eye Width: 61 MM; Nose Bridge: 15 MM; Temple Length: 140 MM"
+        ],
       )
     end
     it 'fetches information for a product on amazon.in' do
@@ -185,8 +185,8 @@ describe ProductScraper::Scrapers::Amazon do
         brand_name: "Idee",
         available: true,
         priority_service: false,
-        price: "INR 2,670.00".to_money,
-        marked_price: nil,
+        price: "INR 2,061.00".to_money,
+        marked_price: "INR 2,290".to_money,
         canonical_url: "http://www.amazon.in/Idee-Aviator-Sunglasses-Gunmetal-S1909/dp/B00O37711M",
         primary_category: "Clothing & Accessories",
         categories: ["Clothing & Accessories", "Women", "Sunglasses & Eyewear Accessories", "Sunglasses"],
@@ -199,11 +199,11 @@ describe ProductScraper::Scrapers::Amazon do
         ], features: [
           "Plastic lens with Metal frame",
           "Lens Type: Gradient",
+          "Eye Width: 61 MM",
           "Ideal for: Men. Women",
-          "Grey lens with Gunmetal  colored frame",
+          "Grey lens with Gunmetal colored frame",
           "Non-Polarized",
-          "Eye Width: 57 MM; Nose Bridge: 15 MM; Temple Length: 140 MM",
-          "100% UV Protected"
+          "Eye Width: 61 MM; Nose Bridge: 15 MM; Temple Length: 140 MM"
         ]
       )
     end
@@ -211,7 +211,7 @@ describe ProductScraper::Scrapers::Amazon do
       setup_scraper_and_run_for_kind :amazon, :in_has_more_features
       markdown = "### From the Manufacturer\n\n##### TITANIUM S310"
       expect(@response['description']['markdown']).to include(markdown)
-      expect(@response['extras']).to contain_key_pairs(can_gift: true)
+      expect(@response['extras']).to contain_key_pairs(can_gift: false)
       expect(@response).not_to contain_items([
         "See more product details"
       ]).for_key('features')

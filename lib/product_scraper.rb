@@ -58,6 +58,11 @@ module ProductScraper
       klass.send(:set_uuid, &block) if klass
     end
 
+    def sanitize_url_for(scraper, &block)
+      klass = class_for(scraper) rescue nil
+      klass.send(:sanitize, &block) if klass
+    end
+
     def fetch(url, options = {})
       new(url, options).fetch
     end
@@ -68,22 +73,27 @@ module ProductScraper
     end
 
     def uuid(url)
-      uri = URI.parse(URI.encode(url)) rescue nil
+      uri = URI.parse(URI.encode(url)) rescue url
       uri = URI.parse("http://#{uri}") if uri.scheme.nil?
 
       scrapers = available_scrapers.map do |scraper|
         class_for(scraper)
       end.select do |scraper|
-        scraper.host_matches?(uri)
+        scraper.host_matches?(scraper.sanitize_uri(uri))
       end
 
-      scraper = scrapers.detect{|scraper| scraper.url_matches?(uri)}
-      unique_id = (scraper.inferred_uuid(uri) rescue nil) if scraper
+      tmp_uri = nil
+      scraper = scrapers.detect do |scraper|
+        tmp_uri = scraper.sanitize_uri(uri)
+        scraper.url_matches?(tmp_uri)
+      end
+
+      unique_id = (scraper.inferred_uuid(tmp_uri) rescue nil) if scraper
       unique_id = Digest::MD5.hexdigest(uri.path) if unique_id.to_s.empty?
       unique_id = "#{scraper.to_s.demodulize.parameterize}-#{unique_id}"
 
       case
-      when scraper then { uuid: unique_id.upcase, scraper: scraper }
+      when scraper then { uuid: unique_id.upcase, scraper: scraper, url: tmp_uri.to_s }
       when scrapers.any? then { scrapers: scrapers, reason: :not_a_product }
       else { reason: :not_implemented }
       end
