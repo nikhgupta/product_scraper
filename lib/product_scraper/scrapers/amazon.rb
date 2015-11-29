@@ -43,15 +43,22 @@ module ProductScraper
 
       def price
         if has_css?('#unqualifiedBuyBox')
-          selector = '#unqualifiedBuyBox .a-color-price'
+          __currency '#unqualifiedBuyBox .a-color-price'
         else
-          selector = '#price .a-size-medium.a-color-price:not(.a-text-strike)'
+          %w[price buyNewSection moreBuyingChoices_feature_div].each do |id|
+            selector = "##{id} .a-size-medium.a-color-price:not(.a-text-strike)"
+            return __currency(selector) if has_css?(selector)
+          end
         end
-        __currency(selector)
+        nil
       end
 
       def marked_price
-        __currency('#price .a-text-strike')
+        %w[price buyNewSection buyNewInner].each do |id|
+          selector = "##{id} .a-text-strike"
+          return __currency(selector) if has_css?(selector)
+        end
+        nil
       end
 
       def canonical_url
@@ -64,7 +71,7 @@ module ProductScraper
       end
 
       def images
-        thumbs = attribute_for("#altImages img", :src, all: true)
+        thumbs = attribute_for("#altImages img, #imageBlockThumbs img", :src, all: true)
         thumbs = thumbs.map{|a| a.gsub(/\._(.*?)\d+\_\./, '.')}
         no_image = thumbs.count == 1 && thumbs[0] =~ /\/no-img-.*?\.gif$/
         no_image ? [] : thumbs

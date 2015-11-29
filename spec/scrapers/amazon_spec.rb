@@ -11,7 +11,8 @@ describe ProductScraper::Scrapers::Amazon do
       in_fulfilled: 'http://www.amazon.in/Idee-Aviator-Sunglasses-Gunmetal-S1909/dp/B00O37711M/ref=sr_1_1?s=apparel&ie=UTF8&qid=1436699589&sr=1-1',
       has_video: 'http://www.amazon.com/dp/B00X4WHP5E/ref=cs_va_lb_0?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=desktop-hero-kindle-A&pf_rd_r=03ZSTRPA3RD5B0HXWT73&pf_rd_t=36701&pf_rd_p=2131589782&pf_rd_i=desktop',
       has_unique_desc: 'http://www.amazon.com/dp/B00X4WHP5E/ref=cs_va_lb_0?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=desktop-hero-kindle-A&pf_rd_r=03ZSTRPA3RD5B0HXWT73&pf_rd_t=36701&pf_rd_p=2131589782&pf_rd_i=desktop',
-      in_has_more_features: 'http://www.amazon.in/gp/product/B00YSDS1VA?ref_=gb1h_img_c11_7427_18b2d009&smid=AKXO6PTDSQVOC#productDetails'
+      in_has_more_features: 'http://www.amazon.in/gp/product/B00YSDS1VA?ref_=gb1h_img_c11_7427_18b2d009&smid=AKXO6PTDSQVOC#productDetails',
+      book: 'http://www.amazon.in/Scion-Ikshvaku-Part-Chandra-Series/dp/9385152149/ref=pd_sim_14_5?ie=UTF8&dpID=51DE-2bLjIL&dpSrc=sims&preST=_AC_UL160_SR104%2C160_&refRID=07EVTB3425F0D6AN9Z7G'
     }
   end
   it 'can parse Product URLs from Amazon' do
@@ -215,6 +216,25 @@ describe ProductScraper::Scrapers::Amazon do
       expect(@response).not_to contain_items([
         "See more product details"
       ]).for_key('features')
+    end
+    it 'fetches information for a book on amazon.in' do
+      setup_scraper_and_run_for_kind :amazon, :book
+      expect(@response).to contain_key_pairs(
+        pid: "9385152149",
+        brand_name: nil,
+        available: true,
+        priority_service: "Fulfilled by Amazon",
+        price: "INR 141".to_money,
+        marked_price: "INR 350".to_money,
+        canonical_url: "http://www.amazon.in/Scion-Ikshvaku-Part-Chandra-Series/dp/9385152149",
+        primary_category: "Books",
+        categories: ["Books", "Literature & Fiction", "Indian Writing"],
+        ratings: { "average" => 80, "count" => 2750},
+        images: [
+          "http://ecx.images-amazon.com/images/I/51DE-2bLjIL.jpg",
+          "http://ecx.images-amazon.com/images/I/51WL8RqBjVL.jpg"
+        ], features: []
+      )
     end
   end
 end
